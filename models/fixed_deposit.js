@@ -1,6 +1,6 @@
-const { name } = require('ejs')
+
 const mongoose = require('mongoose')
-mongoose.connect(`mongodb://127.0.0.1:27017/vise`)
+
 
 const fixedSchema = mongoose.Schema({
     userName : String,

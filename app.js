@@ -19,21 +19,22 @@ const xirr = require('xirr')
 const cron = require('node-cron');
 const fetch = require('node-fetch');
 const nodemailer = require('nodemailer');
+const PORT = process.env.PORT || 3000;
+require('dotenv').config();
+
+
 
 app.set('view engine','ejs');
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(express.static(path.join(__dirname,'public')))
 app.use(cookieParser())
-require('dotenv').config();
-// mongoose.connect('mongodb://localhost:27017/vise', {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// }).then(() => {
-//   console.log("MongoDB connected");
-// }).catch((err) => {
-//   console.error("MongoDB connection error:", err);
-// });
+
+
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.error("❌ MongoDB error:", err));
+
 
 async function getNAV(fundCode) {
   const res = await fetch(`https://api.mfapi.in/mf/${fundCode}/latest`);
@@ -581,6 +582,6 @@ app.get('/bonds',(req,res)=>{
 app.get('/add-bonds',(req,res)=>{
     res.render('add-bonds')
 })
-app.listen(3000,()=>{
+app.listen(PORT,()=>{
     console.log('running');
 });
