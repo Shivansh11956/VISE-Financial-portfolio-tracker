@@ -44,7 +44,7 @@ async function getNAV(fundCode) {
 }
 
 cron.schedule('00 10 * * *', async () => {
-  console.log("Running daily mutual fund NAV check...");
+//   console.log("Running daily mutual fund NAV check...");
   
   const funds = await trackFundModel.find({});
 //   console.log(funds)
@@ -64,7 +64,7 @@ cron.schedule('00 10 * * *', async () => {
       fund.lastUpdated = new Date().toLocaleDateString();
       await fund.save();
 
-      console.log(logMsg);
+    //   console.log(logMsg);
     } catch (error) {
       console.error(`Error processing ${fund.name}:`, error.message);
     }
@@ -92,7 +92,7 @@ async function sendEmail(to, fundName, nav) {
 }
 
 cron.schedule('00 11 * * *', async () => {
-  console.log("Running daily fixed deposits maturity check...");
+//   console.log("Running daily fixed deposits maturity check...");
   
   const funds = await trackedFixedModel.find({});
 //   console.log(funds)
@@ -129,7 +129,7 @@ cron.schedule('00 11 * * *', async () => {
       if (newDate <= today) {
         await sendEmailForFd(fund.userName, fund.fdName, newDate, fund.fdInvestment);
         logMsg = `Fund matured on ${newDate.toLocaleDateString()}`
-        console.log('Fund reached')
+        // console.log('Fund reached')
       }
 
       fund.lastLog = logMsg;
@@ -186,7 +186,7 @@ app.get('/dashboard',isLogged,(req,res)=>{
     res.render('dashboard');
 })
 app.get('/login',(req,res)=>{
-    console.log(req.cookies)
+    // console.log(req.cookies)
     res.render('login_account')
 })
 app.post('/create-account',async (req,res)=>{
@@ -215,8 +215,8 @@ app.post('/add_mutual_fund',isLogged, async (req, res) => {
     let mutual = await mutualModel.findOne({ fundName: fund_name, userName: decoded.email });
 
     if (mutual) { 
-        console.log("Mutual fund is already there");
-        console.log(mutual);
+        // console.log("Mutual fund is already there");
+        // console.log(mutual);
 
         let updatedUser = await mutualModel.findOneAndUpdate(
             { userName: decoded.email, fundName: fund_name }, 
@@ -231,7 +231,7 @@ app.post('/add_mutual_fund',isLogged, async (req, res) => {
             },
             { new: true }
         );
-        console.log(updatedUser);
+        // console.log(updatedUser);
     } else {
         let createdMutual = await mutualModel.create({  
             userName: decoded.email,
@@ -330,7 +330,7 @@ app.get('/api/bonds', async (req, res) => {
 app.post('/calculateXirr',async (req,res)=>{
     let funds = req.body
     let xirrarr = []
-    console.log(funds)
+    // console.log(funds)
     for(let i = 0;i<funds.length;i++){
         let cashflows = []
         let totalunits = 0
@@ -345,13 +345,13 @@ app.post('/calculateXirr',async (req,res)=>{
             amount : parseFloat(totalunits)*parseFloat(funds[i].latestNav),
             when: new Date()
         })
-        console.log(cashflows)
+        // console.log(cashflows)
         try {
             const calculated = xirr(cashflows);
             xirrarr.push(calculated);
         } catch (err) {
             console.error(`XIRR failed for fund ${funds[i].name}`, err.message);
-            xirrarr.push(null); // or -1 or "Error"
+            xirrarr.push(null);
         }
     }
     res.send(xirrarr)
@@ -366,8 +366,8 @@ app.get('/mutual-funds',isLogged,async (req,res)=>{
     let token = req.cookies.token
     let decoded = jwt.verify(token,process.env.JWT_SECRET)
     let allmutuals = await mutualModel.find({userName : decoded.email})
-    console.log(allmutuals)
-    console.log(req.cookies.token)
+    // console.log(allmutuals)
+    // console.log(req.cookies.token)
     res.render('mutual-funds',{allmutuals : allmutuals});
 })
 app.get('/mf-detail',isLogged,async (req,res)=>{
@@ -452,7 +452,7 @@ app.get('/mutual-funds/xirr',(req,res)=>{
 app.post('/api/mutual-funds/track',(req,res)=>{
     let token = req.cookies.token;
     let decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(req.body)
+    // console.log(req.body)
     let createdtrackedFund = trackFundModel.create({
         name : req.body[0],
         amcName : req.body[4],
@@ -490,7 +490,7 @@ app.get('/mutual-funds/track',async (req,res)=>{
 app.post('/mutual-funds/track/pause/:id',async (req,res)=>{
     let token = req.cookies.token
     let decoded = jwt.verify(token,process.env.JWT_SECRET)
-    console.log(req.params.id)
+    // console.log(req.params.id)
     const fund = await trackFundModel.findOne({
         email : decoded.email,
         _id : req.params.id
@@ -518,7 +518,7 @@ app.post('/mutual-funds/track/resume/:id',async (req,res)=>{
 app.post('/mutual-funds/track/remove/:id',async (req,res)=>{
     let token = req.cookies.token
     let decoded = jwt.verify(token,process.env.JWT_SECRET)
-    console.log(req.params.id)
+    // console.log(req.params.id)
     const fund = await trackFundModel.deleteOne({
         email : decoded.email,
         _id : req.params.id
@@ -533,7 +533,7 @@ app.post('/mutual-funds/track/remove/:id',async (req,res)=>{
 app.post('/fixed-deposits/track/pause/:id',async (req,res)=>{
     let token = req.cookies.token
     let decoded = jwt.verify(token,process.env.JWT_SECRET)
-    console.log(req.params.id)
+    // console.log(req.params.id)
     const fund = await trackedFixedModel.findOne({
         userName : decoded.email,
         _id : req.params.id
@@ -547,7 +547,7 @@ app.post('/fixed-deposits/track/pause/:id',async (req,res)=>{
 app.post('/fixed-deposits/track/resume/:id',async (req,res)=>{
     let token = req.cookies.token
     let decoded = jwt.verify(token,process.env.JWT_SECRET)
-    console.log(req.params.id)
+    // console.log(req.params.id)
     const fund = await trackedFixedModel.findOne({
         userName : decoded.email,
         _id : req.params.id
@@ -561,7 +561,7 @@ app.post('/fixed-deposits/track/resume/:id',async (req,res)=>{
 app.post('/fixed-deposits/track/remove/:id',async (req,res)=>{
     let token = req.cookies.token
     let decoded = jwt.verify(token,process.env.JWT_SECRET)
-    console.log(req.params.id)
+    // console.log(req.params.id)
     const fund = await trackedFixedModel.deleteOne({
         userName : decoded.email,
         _id : req.params.id

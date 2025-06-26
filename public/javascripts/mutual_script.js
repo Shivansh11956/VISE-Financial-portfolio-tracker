@@ -89,7 +89,7 @@ async function loadData(){
     })
     
     // console.log(allmutuals);
-    //Pie Chart Starting it is the mutual fund distribution
+   
     let allmutuals;
     await fetch('/api/mutual-funds')
         .then(response => response.json())
@@ -290,8 +290,7 @@ async function loadData(){
         }
     });
 
-    //// pie chart end
-
+   
     new Chart(ctx2, {
         type: 'pie',
         data: {
